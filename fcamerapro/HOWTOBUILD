@@ -1,0 +1,26 @@
+= Prerequisites =
+
+1. Download and install the Tegra Android Development Pack 2.0.
+2. Update your ADT plugin and Android tools to version 20 or higher.
+3. Update your NDK to version r8c.
+4. Create an environment variable FCAM4TEGRA_PATH that points to the fcam4tegra directory that
+   was created when extracting fcam4tegra.zip. You can define this variable in Eclipse by
+   going to 'Window' > 'Preferences' > 'C/C++' > 'Build' > 'Environment'
+
+= Building using Eclipse from the Tegra Android Development Kit =
+
+1. Create a new project in Eclipse from an existing source
+ a. Click 'File' > 'Import' > 'Existing Android Code into Workspace' ...
+ b. Set the source location to 'fcam4tegra/packages/fcamerapro'
+ c. Click 'Finish'
+
+2. Convert Android project into mixed Java/C++ project
+ a. Switch to 'C/C++' perspective
+ b. In the 'Project Explorer', right click on the project folder and select 'New' > 'Convert to a C/C++ project' option
+ c. Select 'Makefile project' as a project type and '-- Android GCC --' as a toolchain
+ d. Click Finish
+
+3. Build the application as you would build a normal Android application.
+         RClick project -> Build Project
+   From Eclipse, run the application to build Java/C++ code and install on the device.
+         RClick project -> Run As -> Android Application

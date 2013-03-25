@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">FCameraPRO</string>
+
+	<string-array name="output_format_array">
+		<item>JPEG Image</item>
+		<item>RAW Image</item>
+		<item>RAW/JPEG Image Pair</item>
+	</string-array>
+
+	<string-array name="shooting_mode_array">
+		<item>Single Picture</item>
+		<item>Burst: 2 Pictures</item>
+		<item>Burst: 4 Pictures</item>
+		<item>Burst: 8 Pictures</item>
+		<item>Bracketing: 3 Pictures (-1/0/+1 EV)</item>
+		<item>Bracketing: 3 Pictures (-2/0/+2 EV)</item>
+	</string-array>
+	
+	<string-array name="flash_mode_array">
+		<item>Off</item>
+		<item>On</item>
+		<item>Flash/No-flash</item>
+	</string-array>
+		
+	<string name="menu_mono_capture">Mono Capture</string>
+	<string name="menu_stereo_capture">Stereo Capture</string>
+	<string name="menu_viewer">Viewer</string>
+	
+	<string name="menu_item_about">About...</string>
+	<string name="menu_item_delete_stack">Delete Stack</string>
+    <string name="menu_item_switch_cameras">Switch Camera</string>
+	    	
+	<string name="label_shooting_mode">Shooting Mode</string>
+	<string name="label_output_format">Output Format</string>
+	<string name="label_flash_mode">Flash Mode</string>
+	<string name="label_wb">WB</string>
+	<string name="label_exposure">Exposure</string>
+	<string name="label_gain">Gain</string>
+	<string name="label_focus">Focus</string>
+	<string name="label_capture">Capture</string>
+	<string name="label_auto">Auto</string>
+	
+	<string name="label_large_preview">Image Preview</string>
+	
+	<string name="copyright">Copyright 2011 Nvidia Corporation</string>
+	<string name="confirmation_delete_stack">Are you sure you want to delete \"%s\" stack?</string>
+	
+	<string name="label_info_page">Total Stacks\n</string>
+	<string name="label_info_stack">Stack Name\nImage Count\n</string>
+	<string name="label_info_image">Image Name\nExposure\nGain\nWB\nFocus\nFlash\n</string>
+	
+	<string name="label_preview_hint">Long press images to enlarge...</string>
+	
+</resources>
