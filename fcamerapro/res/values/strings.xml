@@ -13,8 +13,7 @@
 		<item>Burst: 2 Pictures</item>
 		<item>Burst: 4 Pictures</item>
 		<item>Burst: 8 Pictures</item>
-		<item>Bracketing: 3 Pictures (-1/0/+1 EV)</item>
-		<item>Bracketing: 3 Pictures (-2/0/+2 EV)</item>
+		<item>Bracketing</item>
 	</string-array>
 	
 	<string-array name="flash_mode_array">
@@ -40,6 +39,8 @@
 	<string name="label_focus">Focus</string>
 	<string name="label_capture">Capture</string>
 	<string name="label_auto">Auto</string>
+	
+	<string name="label_bracket">8 Images</string>
 	
 	<string name="label_large_preview">Image Preview</string>
 	

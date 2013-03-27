@@ -39,25 +39,27 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 /**
  * UI component implementing and controlling the camera functionality.
  */
-public final class CameraFragment extends Fragment implements OnClickListener, OnSeekBarChangeListener, HistogramDataProvider {
+public final class CameraFragment extends Fragment implements OnClickListener, OnSeekBarChangeListener, HistogramDataProvider, OnItemSelectedListener {
 
     /**
      * References to UI components used to control picture capture parameters
      */
     private CheckBox mAutoWBCheckBox, mAutoFocusCheckBox, mAutoExposureCheckBox, mAutoGainCheckBox;
-    private SeekBar mWBSeekBar, mFocusSeekBar, mExposureSeekBar, mGainSeekBar;
-    private TextView mWbTextView, mFocusTextView, mExposureTextView, mGainTextView;
+    private SeekBar mWBSeekBar, mFocusSeekBar, mExposureSeekBar, mGainSeekBar, mBrackSeekBar;
+    private TextView mWbTextView, mFocusTextView, mExposureTextView, mGainTextView, mBrackTextView;
     private Spinner mOutputFormatSpinner, mShootingModeSpinner, mFlashModeSpinner;
     private Button mCaptureButton;
 
@@ -128,6 +130,7 @@ public final class CameraFragment extends Fragment implements OnClickListener, O
         adapter = ArrayAdapter.createFromResource(activity, R.array.shooting_mode_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mShootingModeSpinner.setAdapter(adapter);
+        mShootingModeSpinner.setOnItemSelectedListener(this);
 
         // flash mode
         mFlashModeSpinner = (Spinner) mContentView.findViewById(R.id.spinner_flash_mode);
@@ -150,6 +153,7 @@ public final class CameraFragment extends Fragment implements OnClickListener, O
         mFocusTextView = (TextView) mContentView.findViewById(R.id.tv_focus);
         mGainTextView = (TextView) mContentView.findViewById(R.id.tv_gain);
         mWbTextView = (TextView) mContentView.findViewById(R.id.tv_wb);
+        mBrackTextView = (TextView) mContentView.findViewById(R.id.tv_brack);
 
         // seek bars
         mExposureSeekBar = (SeekBar) mContentView.findViewById(R.id.sb_exposure);
@@ -164,7 +168,10 @@ public final class CameraFragment extends Fragment implements OnClickListener, O
         mWBSeekBar = (SeekBar) mContentView.findViewById(R.id.sb_wb);
         mWBSeekBar.setMax(Settings.SEEK_BAR_PRECISION);
         mWBSeekBar.setOnSeekBarChangeListener(this);
-
+        mBrackSeekBar = (SeekBar) mContentView.findViewById(R.id.sb_brack);
+        mBrackSeekBar.setOnSeekBarChangeListener(this);
+        mBrackSeekBar.setEnabled(false);
+        
         // capture button
         mCaptureButton = (Button) mContentView.findViewById(R.id.button_capture);
         mCaptureButton.setOnClickListener(this);
@@ -266,29 +273,28 @@ public final class CameraFragment extends Fragment implements OnClickListener, O
             break;
         case 4: {
             // bracketing
-            FCamShot bshot = shot.clone();
-            bshot.exposure *= 2;
-            shots.add(bshot);
-
-            shots.add(shot);
-
-            bshot = shot.clone();
-            bshot.exposure /= 2;
-            shots.add(bshot);
+        	int numImages = mBrackSeekBar.getProgress() + 3;
+        	for(int i = 0; i < numImages; i++){
+        		FCamShot bshot = shot.clone();
+        		float ev = i * 4.0f / numImages;
+        		ev -= 2;
+        		bshot.exposure *= Math.pow(2, ev);
+        		shots.add(bshot);
+        	}
             break;
         }
-        case 5:
-            // bracketing
-            FCamShot bshot = shot.clone();
-            bshot.exposure *= 4;
-            shots.add(bshot);
-
-            shots.add(shot);
-
-            bshot = shot.clone();
-            bshot.exposure /= 4;
-            shots.add(bshot);
-            break;
+//        case 5:
+//            // bracketing
+//            FCamShot bshot = shot.clone();
+//            bshot.exposure *= 4;
+//            shots.add(bshot);
+//
+//            shots.add(shot);
+//
+//            bshot = shot.clone();
+//            bshot.exposure /= 4;
+//            shots.add(bshot);
+//            break;
         }
     }
 
@@ -432,6 +438,8 @@ public final class CameraFragment extends Fragment implements OnClickListener, O
             if (seekBar.isEnabled()) {
                 iface.setPreviewParam(FCamInterface.PreviewParams.WB, wb);
             }
+        } else if (seekBar == mBrackSeekBar) {
+        	mBrackTextView.setText((progress + 3) + " Images");
         }
     }
 
@@ -476,5 +484,21 @@ public final class CameraFragment extends Fragment implements OnClickListener, O
             return super.onOptionsItemSelected(item);
         }
     }
+
+	@Override
+	public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
+			long arg3) {
+		int index = mShootingModeSpinner.getSelectedItemPosition();
+		if(index == 4){
+			mBrackSeekBar.setEnabled(true);
+		} else {
+			mBrackSeekBar.setEnabled(false);
+		}
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+		// NOOP
+	}
 
 }
