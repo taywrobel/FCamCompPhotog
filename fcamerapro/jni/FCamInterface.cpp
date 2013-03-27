@@ -45,6 +45,7 @@
 #include <jni.h>
 #include <string>
 #include <FCam/Tegra/hal/SharedBuffer.h>
+#include <fastcv/fastcv.h>
 
 //#define USE_GL_TEXTURE_UPLOAD
 
@@ -722,6 +723,31 @@ extern "C" {
         // launch the work thread
         pthread_create( &sAppData->appThread, 0, FCamAppThread, sAppData );
     }
+
+	JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_gSolve(
+			JNIEnv * env, jobject thiz, jobjectArray zObj, jfloatArray B,
+			jfloat lambda, jfloatArray w)
+	{
+		int len1 = env->GetArrayLength(zObj);
+		jfloatArray dim = (jfloatArray) env->GetObjectArrayElement(zObj, 0);
+		int len2 = env->GetArrayLength(dim);
+		float **z;
+		// allocate localArray using len1
+		z = new float*[len1];
+		for (int i = 0; i < len1; ++i) {
+			jfloatArray oneDim = (jfloatArray) env->GetObjectArrayElement(zObj, i);
+			jfloat *element = env->GetFloatArrayElements(oneDim, 0);
+			//allocate localArray[i] using len2
+			z[i] = new float[len2];
+			for (int j = 0; j < len2; ++j) {
+				z[i][j] = element[j];
+			}
+		}
+
+		free(z);
+
+		// TODO: Do main processing here.
+	}
 
 #include "GLWrapper.h"
 

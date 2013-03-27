@@ -642,4 +642,9 @@ public final class FCamInterface {
      * @return parameter value
      */
     private native String getParamString(int param);
+    
+    /**
+	 * Preforms the gSolve code.
+	 */
+	private native void gSolve(int[][] Z, float[] B, float lambda, int[] w);
 }
