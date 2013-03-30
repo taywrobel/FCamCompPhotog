@@ -53,4 +53,6 @@
 	
 	<string name="label_preview_hint">Long press images to enlarge...</string>
 	
+	<string name="radiance_label">Generate Radiance Map</string>
+	
 </resources>

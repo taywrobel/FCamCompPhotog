@@ -27,19 +27,18 @@
 package com.nvidia.fcamerapro;
 
 import java.io.File;
-
 import java.io.IOException;
+import java.net.MalformedURLException;
 
-import com.nvidia.fcamerapro.FCamInterface.PreviewParams;
-
+import Jama.Matrix;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.ActionMode;
@@ -47,18 +46,22 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.Gallery;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.nvidia.fcamerapro.FCamInterface.PreviewParams;
 
 /**
  * Image viewer component. It is a simple image gallery where top row shows
@@ -66,7 +69,7 @@ import android.widget.Toast;
  * stack. Basic capture information about images and stacks is displayed on the
  * side.
  */
-public final class ViewerFragment extends Fragment implements FCamInterfaceEventListener {
+public final class ViewerFragment extends Fragment implements FCamInterfaceEventListener, OnClickListener {
     /**
      * Reference to fragment view component created by
      * {@link #initContentView()}
@@ -83,6 +86,7 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
     private View mGalleryPreview;
     private TextView mGalleryInfoLabel, mGalleryInfoValue;
     private Toast mPreviewHint;
+    private Button mRadianceButton;
 
     /**
      * UI thread handler. Needed for posting UI update messages directly from
@@ -165,6 +169,12 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
             label += getResources().getString(R.string.label_info_stack);
             value += "\n" + Utils.GetFileName(istack.getName());
             value += "\n" + istack.getImageCount();
+            
+            if(istack.getImageCount() == 1){
+            	mRadianceButton.setEnabled(false);
+            } else {
+            	mRadianceButton.setEnabled(true);
+            }
 
             Image image = null;
             if (imageIndex >= 0 && imageIndex < istack.getImageCount()) {
@@ -206,6 +216,8 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 
         mGalleryInfoLabel = (TextView) mContentView.findViewById(R.id.tv_gallery_info_label);
         mGalleryInfoValue = (TextView) mContentView.findViewById(R.id.tv_gallery_info_value);
+        mRadianceButton = (Button) mContentView.findViewById(R.id.radiance_gen);
+        mRadianceButton.setOnClickListener(this);
         mHistogram = (HistogramView) mContentView.findViewById(R.id.gallery_histogram);
 
         mPreviewHint = Toast.makeText(activity, R.string.label_preview_hint, Toast.LENGTH_SHORT);
@@ -497,4 +509,35 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
      */
     public void onPreviewParamChange(PreviewParams paramId) {
     }
+
+	@Override
+	public void onClick(View arg0) {
+		// TODO: Write code for radiance generation here
+		ImageStack istack = mImageStackManager.getStack(mSelectedStack);
+		Bitmap[] images = new Bitmap[istack.getImageCount()];
+		int[][] pixels = new int[images.length][];
+		for(int i = 0; i < images.length; i++){
+			images[i] = BitmapFactory.decodeFile(new File(istack.getImage(i).getName()).toURI().toString());
+			images[i].getPixels(pixels[i], 0, 0, 0, 0, images[i].getWidth(), images[i].getHeight());
+		}
+		
+		double[][] zVals = new double[pixels[0].length][images.length];
+		for(int i = 0; i < zVals.length; i++){
+			for(int j = 0; j < zVals[i].length; i++){
+				zVals[i][j] = pixels[j][i];
+			}
+		}
+	
+		Matrix Z = new Matrix(zVals);
+		
+		double[][] bVals = new double[images.length][1];
+		for(int i = 0; i < bVals.length; i++){
+			bVals[i][0] = (i * 4.0 / bVals.length) - 2.0;
+		}
+		
+		Matrix B = new Matrix(bVals);
+		
+		double lambda = 1.0;
+		
+	}
 }

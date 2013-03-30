@@ -10,6 +10,7 @@
 			android:layout_height="match_parent" android:layout_marginLeft="@dimen/big_margin"
 			android:layout_marginBottom="@dimen/very_big_margin"
 			android:layout_marginTop="@dimen/big_margin">
+			
 			<LinearLayout android:orientation="horizontal"
 				android:layout_height="match_parent" android:layout_width="match_parent"
 				android:layout_alignParentTop="true" android:layout_alignParentLeft="true">
@@ -20,10 +21,15 @@
 					style="@style/elem_values" />
 			</LinearLayout>
 
+			<RelativeLayout android:layout_height="match_parent" android:layout_width="match_parent">
+			<Button android:layout_width="@dimen/gallery_histogram_width" android:layout_height="@dimen/very_big_margin" android:id="@+id/radiance_gen"
+			    android:text="@string/radiance_label" android:layout_above="@+id/gallery_histogram"/>
+			
 			<com.nvidia.fcamerapro.HistogramView
 				android:layout_alignParentBottom="true" android:id="@+id/gallery_histogram"
 				android:layout_width="@dimen/gallery_histogram_width"
 				android:layout_height="@dimen/gallery_histogram_height" />
+			</RelativeLayout>
 		</RelativeLayout>
 
 		<LinearLayout android:orientation="vertical"
