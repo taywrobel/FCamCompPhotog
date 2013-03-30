@@ -1,5 +1,5 @@
-/gen
-/bin
+*/gen
+*/bin
 
 /libs
 /obj
@@ -13,6 +13,7 @@
 *.o
 *.so
 *.d
+*.dex
 
 # Packages #
 ############
@@ -26,6 +27,7 @@
 *.rar
 *.tar
 *.zip
+*.apk
 
 # Logs and databases #
 ######################
@@ -43,3 +45,4 @@
 Icon?
 ehthumbs.db
 Thumbs.db
+*NUL_win*
