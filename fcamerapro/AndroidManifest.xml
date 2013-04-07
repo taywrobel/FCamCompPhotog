@@ -14,7 +14,8 @@
     <application
         android:hardwareAccelerated="true"
         android:icon="@drawable/icon"
-        android:label="@string/app_name" >
+        android:label="@string/app_name" 
+        android:largeHeap="true" >
         <activity
             android:name=".FCameraPROActivity"
             android:label="@string/app_name"

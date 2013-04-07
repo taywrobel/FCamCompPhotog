@@ -311,6 +311,4 @@ public final class Utils {
                                1.0 / Settings.SEEK_BAR_WB_GAMMA) * Settings.SEEK_BAR_PRECISION);
     }
 
-
-
 }

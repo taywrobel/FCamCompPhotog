@@ -4,6 +4,9 @@
 /libs
 /obj
 
+/fcamerapro/obj
+/fcamerapro/bin
+
 # Compiled source #
 ###################
 *.com
