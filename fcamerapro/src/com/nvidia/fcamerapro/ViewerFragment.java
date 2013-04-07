@@ -32,15 +32,12 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import Jama.Matrix;
-import Jama.SingularValueDecomposition;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -66,6 +63,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nvidia.fcamerapro.FCamInterface.PreviewParams;
+
+import edu.gatech.flojama.Matrix;
+import edu.gatech.flojama.SingularValueDecomposition;
 
 /**
  * Image viewer component. It is a simple image gallery where top row shows
@@ -526,7 +526,7 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 			Log.d("algo", "Reading in " + filename);
 //			Bitmap cur = BitmapFactory.decodeFile(filename);
 			Bitmap cur = mImageStackManager.getStack(i).getImage(0).getThumbnail();
-			cur = Bitmap.createScaledBitmap(cur, 32, 32, false);
+			cur = Bitmap.createScaledBitmap(cur, 16, 16, false);
 			
 			imW = cur.getWidth();
 			imH = cur.getHeight();
@@ -546,8 +546,8 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 		Log.d("algo", "Read in " + imgBuffers.size() + " images.");
 		Log.d("algo", "Image size is " + imW + " by " + imH);
 		
-		double zMin = Double.MAX_VALUE;
-		double zMax = Double.MIN_VALUE;
+		float zMin = Float.MAX_VALUE;
+		float zMax = Float.MIN_VALUE;
 		
 		byte[][] imgDatas = new byte[imgBuffers.size()][];{
 			int end = imgBuffers.size();
@@ -567,7 +567,7 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 		
 		Log.d("algo", "Converted buffers into arrays");
 		
-		double[][][] zVals = new double[3][imgDatas[0].length/4][imgDatas.length];
+		float[][][] zVals = new float[3][imgDatas[0].length/4][imgDatas.length];
 		for(int channel = 0; channel < zVals.length; channel++){
 			// Goes through each channel
 			for(int imgNum = 0; imgNum < zVals[channel][0].length; imgNum++){
@@ -585,9 +585,11 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 			
 		Matrix Z = new Matrix(zVals[0]);
 		
-		double[][] bVals = new double[numPhotos][1];
+		System.out.println();
+		
+		float[][] bVals = new float[numPhotos][1];
 		for(int i = 0; i < bVals.length; i++){
-			bVals[i][0] = (i * 4.0 / bVals.length) - 2.0;
+			bVals[i][0] = (float) ((i * 4.0 / bVals.length) - 2.0);
 		}
 		
 		Matrix B = new Matrix(bVals);
@@ -596,11 +598,11 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 		
 		Log.d("algo", "Exposure info added to B array");
 		
-		double lambda = 1.0;
+		float lambda = 1.0f;
 		
-		double[][] wArr = new double[Z.getRowDimension()][1];
+		float[][] wArr = new float[Z.getRowDimension()][1];
 		for(int i = 0; i < wArr.length; i++){
-			wArr[i][0] = 1.0;
+			wArr[i][0] = 1.0f;
 		}
 		Matrix w = new Matrix(wArr);
 		wArr = null;
@@ -630,7 +632,7 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 //		A = zeros(size(Z,1)*size(Z,2)+n+1,n+size(Z,1));
 		int pixelCount = Z.getRowDimension();
 		int imgCount = Z.getColumnDimension();
-		double[][] AArr = new double[pixelCount * imgCount + n + 1][n + pixelCount];
+		float[][] AArr = new float[pixelCount * imgCount + n + 1][n + pixelCount];
 		Matrix A = new Matrix(AArr);
 		AArr = null;
 		System.gc();
@@ -642,7 +644,7 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 //		%And then performing zeros on that element and 1 (1 dimensional vector of zeros)
 
 //		b = zeros(size(A,1),1);
-		Matrix b = new Matrix(new double[A.getRowDimension()][1]);
+		Matrix b = new Matrix(new float[A.getRowDimension()][1]);
 		
 
 		Log.d("algo", "Created b matrix");
@@ -659,7 +661,7 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 
 			Log.d("algo", "Looping through each image");
 //			for j=1:size(Z,2) %num cols in Z  (for loop working on elements 1 through num cols in Z)
-			for(int j = 0; j < Z.getRowDimension(); j++){
+			for(int j = 0; j < Z.getColumnDimension(); j++){
 				 
 //				 %A few things going on here
 //				 %Z(i,j) gets the value at row i and col j in Z
@@ -667,7 +669,7 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 //				 %then we find THAT value in Matrix w
 				 
 //				 wij = w(Z(i,j)+1); 
-				 double wij = w.get((int)(Z.get(i,j)+0.5), 0);
+				 float wij = w.get((int)(Z.get(i,j)+0.5), 0);
 				 
 //				 %A(k, Z(i,j) is finding the value at row i and col j in Z
 //				 %then finding the value at K and (Z(i,j) in matrix A
@@ -686,12 +688,11 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 //				 %Matrix multiplication on wij and the value located at row i in B
 //				 %Then sets ^^^^ that value to the value located at row k and col 1 in b
 				 
-//				 b(k,1) = wij * B(i);
-				 b.set(k, 0, wij * B.get(i, 0));
+//				 b(k,1) = wij * B(j);
+				 b.set(k, 0, wij * B.get(j, 0));
 				 
 //				 k=k+1;
 				 k++;
-				 
 				 
 //			 end %ends inner loop
 			}
@@ -703,7 +704,7 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 
 //		%sets the value located at row k and col 129 in A to 1
 //		A(k,129) = 1;
-		A.set(k, 128, 1.0);
+		A.set(k, 128, (float) 1.0);
 //		k=k+1;
 		k++;
 		
@@ -743,13 +744,18 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 //		x = A\b;
 		Matrix x;
 		SingularValueDecomposition svd = new SingularValueDecomposition(A);
+		Log.d("algo", "SVD completed.");
 		x = svd.getU().times(svd.getS().inverse()).times(svd.getV().transpose()).times(b);
+		
+		Log.d("algo", "Done computing result matrix.");
 		
 //		g = x(1:n);
 		Matrix g = new Matrix(n,1);
 		for(int i = 0; i < n; i++){
 			g.set(i, 0, x.get(i,0));
 		}
+		
+		Log.d("algo", "End of BSolve");
 //		lE = x(n+1:size(x,1));
 		
 		// ------------------------------
